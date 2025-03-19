@@ -2,6 +2,11 @@
 #include "epeg_private.h"
 #include <jerror.h>
 
+#ifndef EPEG_USE_EXIF
+/* if libexif is not used then include <sys/param.h> for MIN() and MAX() macros */
+#include <sys/param.h>
+#endif
+
 static Epeg_Image   *_epeg_open_header         (Epeg_Image *im);
 static int           _epeg_decode              (Epeg_Image *im);
 static int           _epeg_scale               (Epeg_Image *im);
@@ -13,7 +18,9 @@ static void          _epeg_fatal_error_handler (j_common_ptr cinfo);
 
 static const JOCTET fake_EOI[2] = { 0xFF, JPEG_EOI };
 
+#ifdef EPEG_USE_EXIF
 static ExifByteOrder exif_byte_order = EXIF_BYTE_ORDER_INTEL;
+#endif
 
 /**
  * Open a JPEG image by filename.
@@ -911,6 +918,7 @@ _epeg_open_header(Epeg_Image *im)
 		    }
 	       }
 	  }
+#ifdef EPEG_USE_EXIF
 	else if (m->marker == (JPEG_APP0 + 1))
 	{
 	    /*
@@ -931,6 +939,7 @@ _epeg_open_header(Epeg_Image *im)
 	    }            
             exif_data_unref(ed);
      	}
+#endif
     }
     return im;
 }
@@ -1174,6 +1183,7 @@ struct epeg_destination_mgr
    unsigned char *buf;
 };
 
+#ifdef EPEG_USE_EXIF
 /* Get an existing tag, or create one if it doesn't exist */
 static ExifEntry *init_tag(ExifData *exif, ExifIfd ifd, ExifTag tag)
 {
@@ -1187,6 +1197,7 @@ static ExifEntry *init_tag(ExifData *exif, ExifIfd ifd, ExifTag tag)
     }
     return entry;
 }
+#endif
 
 static int
 _epeg_encode(Epeg_Image *im)
@@ -1266,6 +1277,7 @@ _epeg_encode(Epeg_Image *im)
      }
    jpeg_start_compress(&(im->out.jinfo), TRUE);
 
+#ifdef EPEG_USE_EXIF
    /* Set the image options for Exif */
    ExifData *exif = exif_data_new();
    exif_data_set_option(exif, EXIF_DATA_OPTION_FOLLOW_SPECIFICATION);
@@ -1284,6 +1296,7 @@ _epeg_encode(Epeg_Image *im)
    jpeg_write_marker(&(im->out.jinfo), JPEG_APP0 + 1, exif_data, exif_data_len);
    exif_data_unref(exif);
    free(exif_data);
+#endif
 
    /* Output comment if there is one */
    if (im->out.comment && *im->out.comment)
