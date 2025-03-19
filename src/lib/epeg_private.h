@@ -14,13 +14,13 @@
 #include <jpeglib.h>
 
 /* if macro EPEG_USE_EXIF is defined then the libexif library is used */
-#define EPEG_USE_EXIF
+//#define EPEG_USE_EXIF
 
 #ifdef EPEG_USE_EXIF
 #include <libexif/exif-data.h>
 #endif
 
-#include "config.h"
+//#include "config.h"
 
 typedef struct _epeg_error_mgr *emptr;
 
