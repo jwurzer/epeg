@@ -3,9 +3,9 @@ cmake_minimum_required(VERSION 3.0)
 project(libepeg)
 set (VERSION "0.9.2")
 
-option(BUILD_STATIC_LIB "Build static library" ON)
-option(BUILD_SHARED_LIB "Build shared library" ON)
-option(BUILD_PROGRAM "Build command line tool" OFF)
+option(BUILD_STATIC_LIB "Build static library" OFF)
+option(BUILD_SHARED_LIB "Build shared library" OFF)
+option(BUILD_PROGRAM "Build command line tool" ON)
 
 # Build configuration
 # this project needs libjpeg and libexif.
@@ -110,9 +110,10 @@ if (BUILD_PROGRAM)
     add_executable(epeg_bin ${epeg_SRC})
     message(STATUS "Building command line tool")
     target_link_libraries(epeg_bin epeg_static ${JPEG_LIBRARY} ${EXIF_LIBRARY})
-    target_link_libraries(epeg_bin -Wl,--gc-sections)
-    target_link_libraries(epeg_bin -Wl,-Bdynamic ${dll_lib})
+    #target_link_libraries(epeg_bin -Wl,--gc-sections)
+    #target_link_libraries(epeg_bin -Wl,-Bdynamic ${dll_lib})
     set_target_properties(epeg_bin PROPERTIES OUTPUT_NAME epeg)
+    set_property(TARGET epeg_bin APPEND PROPERTY INCLUDE_DIRECTORIES "${CMAKE_CURRENT_LIST_DIR}/src/lib")
     install(TARGETS epeg_bin DESTINATION bin)
 endif()
 
