@@ -1058,7 +1058,7 @@ _epeg_scale(Epeg_Image *im)
    
    if ((im->out.w < 1) || (im->out.h < 1)) return 0;
    
-   im->scaled = 1;
+   im->scaled = -1; // using -1 instead of 1 to avoid warning: changes value from 1 to -1
    w = im->out.w;
    h = im->out.h;
    for (y = 0; y < h; y++)
@@ -1165,7 +1165,7 @@ _epeg_trim(Epeg_Image *im)
    if ((im->in.w == im->out.w) && (im->in.h == im->out.h)) return 1;
    if (im->scaled) return 1;
    
-   im->scaled = 1;
+   im->scaled = -1; // using -1 instead of 1 to avoid warning: changes value from 1 to -1
    h = im->out.h;
    a = im->out.x;
    b = im->out.y;
@@ -1300,7 +1300,7 @@ _epeg_encode(Epeg_Image *im)
 
    /* Output comment if there is one */
    if (im->out.comment && *im->out.comment)
-     jpeg_write_marker(&(im->out.jinfo), JPEG_COM, im->out.comment, strlen(im->out.comment));
+     jpeg_write_marker(&(im->out.jinfo), JPEG_COM, (const JOCTET *)im->out.comment, strlen(im->out.comment));
    
    /* Output thumbnail info in APP7 */
    if (im->out.thumbnail_info)
@@ -1310,16 +1310,16 @@ _epeg_encode(Epeg_Image *im)
 	if (im->in.file)
 	  {
 	     snprintf(buf, sizeof(buf), "Thumb::URI\nfile://%s", im->in.file);
-	     jpeg_write_marker(&(im->out.jinfo), JPEG_APP0 + 7, buf, strlen(buf));
+	     jpeg_write_marker(&(im->out.jinfo), JPEG_APP0 + 7, (const JOCTET*)buf, strlen(buf));
 	     snprintf(buf, sizeof(buf), "Thumb::MTime\n%llu", (unsigned long long int)im->stat_info.st_mtime);
 	  }
-	jpeg_write_marker(&(im->out.jinfo), JPEG_APP0 + 7, buf, strlen(buf));
+	jpeg_write_marker(&(im->out.jinfo), JPEG_APP0 + 7, (const JOCTET*)buf, strlen(buf));
 	snprintf(buf, sizeof(buf), "Thumb::Image::Width\n%i", im->in.w);
-	jpeg_write_marker(&(im->out.jinfo), JPEG_APP0 + 7, buf, strlen(buf));
+	jpeg_write_marker(&(im->out.jinfo), JPEG_APP0 + 7, (const JOCTET*)buf, strlen(buf));
 	snprintf(buf, sizeof(buf), "Thumb::Image::Height\n%i", im->in.h);
-	jpeg_write_marker(&(im->out.jinfo), JPEG_APP0 + 7, buf, strlen(buf));
+	jpeg_write_marker(&(im->out.jinfo), JPEG_APP0 + 7, (const JOCTET*)buf, strlen(buf));
 	snprintf(buf, sizeof(buf), "Thumb::Mimetype\nimage/jpeg");
-	jpeg_write_marker(&(im->out.jinfo), JPEG_APP0 + 7, buf, strlen(buf));
+	jpeg_write_marker(&(im->out.jinfo), JPEG_APP0 + 7, (const JOCTET*)buf, strlen(buf));
      }
    
    while (im->out.jinfo.next_scanline < im->out.h)
